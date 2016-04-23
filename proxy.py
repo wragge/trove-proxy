@@ -21,7 +21,6 @@ def get_url(url):
 
 def ping_pdf(ping_url):
     ready = False
-    print ping_url
     req = Request(ping_url)
     try:
         urlopen(req)
@@ -64,6 +63,12 @@ def get_pdf_url(article_id, zoom=3):
 def pdf(id):
     pdf_url = get_pdf_url(id)
     return pdf_url, 200
+
+
+@app.route("/")
+@app.route("/pdf/")
+def default():
+    return '<html><head><title>Trove PDF Proxy</title></head><body><p>Usage: /pdf/[article id]</p></body></html>'
 
 
 if __name__ == "__main__":
