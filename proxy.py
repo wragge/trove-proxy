@@ -49,7 +49,7 @@ def get_pdf_url(article_id, zoom=3):
             ready = ping_pdf(ping_url)
             if not ready:
                 tries += 1
-                time.sleep(0.5)
+                time.sleep(5)
         if ready:
             pdf_url = 'http://trove.nla.gov.au/newspaper/rendition/nla.news-article{}.{}.pdf?followup={}'.format(article_id, zoom, prep_id)
         else:
