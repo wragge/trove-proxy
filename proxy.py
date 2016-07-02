@@ -1,6 +1,7 @@
-from flask import Flask, abort
+from flask import Flask, abort, request, Response
 from urllib2 import urlopen, Request, HTTPError, URLError
 import time
+import urlparse
 
 app = Flask(__name__)
 
@@ -63,6 +64,24 @@ def get_pdf_url(article_id, zoom=3):
 def pdf(id):
     pdf_url = get_pdf_url(id)
     return pdf_url, 200
+
+
+@app.route('/api/list/<id>')
+def list_proxy(id):
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/list/{}?{}'.format(id, query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/result')
+def search_proxy():
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/result?{}'.format(query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
 
 
 @app.route("/")
