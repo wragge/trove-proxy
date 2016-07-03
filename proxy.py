@@ -1,4 +1,4 @@
-from flask import Flask, abort, request, Response
+from flask import Flask, abort, request, Response, render_template
 from urllib2 import urlopen, Request, HTTPError, URLError
 import time
 import urlparse
@@ -12,8 +12,7 @@ def get_url(url):
         try:
             response = urlopen(req)
         except HTTPError as e:
-            print 'The server couldn\'t fulfill the request.'
-            print 'Error code: ', e.code
+            abort(e.code)
         except URLError as e:
             print 'We failed to reach a server.'
             print 'Reason: ', e.reason
@@ -75,6 +74,60 @@ def list_proxy(id):
     return Response(response.read(), mimetype='application/json')
 
 
+@app.route('/api/newspaper/<id>')
+def newspaper_proxy(id):
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/newspaper/{}?{}'.format(id, query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/work/<id>')
+def work_proxy(id):
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/work/{}?{}'.format(id, query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/newspaper/title/<id>')
+def title_proxy(id):
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/newspaper/title/{}?{}'.format(id, query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/newspaper/titles')
+def titles_proxy():
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/newspaper/titles?{}'.format(query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/contributor/<id>')
+def contributor_proxy(id):
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/contributor/{}?{}'.format(id, query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
+@app.route('/api/contributor')
+def contributors_proxy():
+    parsed_url = urlparse.urlsplit(request.url)
+    query = parsed_url.query
+    api_url = 'http://api.trove.nla.gov.au/contributor?{}'.format(query)
+    response = get_url(api_url)
+    return Response(response.read(), mimetype='application/json')
+
+
 @app.route('/api/result')
 def search_proxy():
     parsed_url = urlparse.urlsplit(request.url)
@@ -86,8 +139,9 @@ def search_proxy():
 
 @app.route("/")
 @app.route("/pdf/")
+@app.route("/api/")
 def default():
-    return '<html><head><title>Trove PDF Proxy</title></head><body><p>Usage: /pdf/[article id]</p></body></html>'
+    return render_template('index.html')
 
 
 if __name__ == "__main__":
